@@ -46,13 +46,17 @@ Installation with pip is simple::
 If installing from source, unpack the distribution tarball and then install as
 follows::
 
-  $ python setup.py build
-  $ python setup.py install
+```shell
+$ python setup.py build
+$ python setup.py install
+```
 
 ### Configuration and use
 
 Usage::
 
-    From the cli using atk-info:
-    jpleger@jupiter:~$ atk-info ~/glyphicons-halflings-white.png
-    [-] Using binary store at: /home/jpleger/binary_store
+```txt
+# From the cli using atk-info:
+jpleger@jupiter:~$ atk-info ~/glyphicons-halflings-white.png
+[-] Using binary store at: /home/jpleger/binary_store
+```
