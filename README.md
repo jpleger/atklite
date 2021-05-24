@@ -1,8 +1,8 @@
 # atklite
 
-atklite is a library intended to help easily determine identifiable attributes 
-about files under investigation. With a simple usage syntax, the following 
-information can be determined by calling applications:
+(Warning: this is old software, circa 2013 and needs to be updated to use more recent libraries)
+
+atklite is a library intended to help easily determine identifiable attributes about files under investigation. With a simple usage syntax, the following information can be determined by calling applications:
 
 - MD5 hash
 - SHA-1 hash
