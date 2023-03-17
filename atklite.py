@@ -43,9 +43,8 @@ class FileAnalysis:
     results = {}
 
     results.update(
-        analyzetime=time.ctime(),
         time=time.time(),
-        analyze_isotime=datetime.utcnow(),
+        isotime=str(datetime.utcnow()),
     )
 
     # XXX Unmunge this
@@ -309,7 +308,7 @@ def cli():
             )
 
             print(
-                f"""  Analysis time: {fa['analyze_isotime']}
+                f"""  Analysis time: {fa['isotime']}
   File name:     {fa['file_name']}
   File size:     {fa['size']}
   File type:     {fa['ftype']}
