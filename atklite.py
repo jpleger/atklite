@@ -253,6 +253,8 @@ def read_chunks(f, chunk_size=FILE_CHUNK_SIZE):
 
 
 def cli():
+    "Main CLI entry point"
+
     description = "Identify file attributes."
     parser = ArgumentParser(description=description)
     parser.add_argument("file", nargs="+", help="input file")
