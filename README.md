@@ -1,8 +1,7 @@
 # atklite
-
-(Warning: this is old software, circa 2013 and needs to be updated to use more recent libraries)
-
-atklite is a library intended to help easily determine identifiable attributes about files under investigation. With a simple usage syntax, the following information can be determined by calling applications:
+atklite is a library intended to help easily determine identifiable
+attributes about files under investigation. With a simple usage syntax,
+the following information can be determined by calling applications:
 
 - MD5 hash
 - SHA-1 hash
@@ -11,52 +10,46 @@ atklite is a library intended to help easily determine identifiable attributes a
 - File size
 - File type (from magic bytes)
 - Fuzzy hash (CTPH) via ssdeep
+- First byte values of file
 
 atklite is primarily intended for use in analyzing malware samples but may be
-useful for anyone looking for a simple API for analyzing files.
+useful for anyone looking for a simple API or command line tool for triaging
+files.
 
 Additionally, atklite can be used as a binary storage system, utilizing a standard
-filesystem to store the files in a sharded manner using the first n bytes of the
-hash that a user chooses to use (md5, sha1, sha256 or sha512).
+filesystem to store the files in a sharded manner using the first N bytes of the
+hash that a user chooses to use (MD5, SHA-1, SHA-256 or SHA-512).
 
 ## Setup
 
 ### Requirements
+- Python 3 (tested with Python 3.10)
+- [libmagic](https://www.darwinsys.com/file/)
+- [ssdeep](https://github.com/ssdeep-project/ssdeep)
 
-- Python (tested with Python 2.7)
-- [python-magic](https://pypi.python.org/pypi/python-magic/). On most systems this requires the libmagic library to be
-  installed.
-- Python ssdeep wrapper, one of either:
-  - [python-ssdeep](http://github.com/DinoTools/python-ssdeep)
-  - [pydeep](https://github.com/kbandla/pydeep)
+The following modules are installed automatically:
+- [python-magic](https://pypi.python.org/pypi/python-magic/)
+- [ssdeep](https://pypi.org/project/ssdeep/)
 
-### Installing Prerequisites
+### Installing prerequisites
+Installing the prerequisites on an Debian/Ubuntu system is simple.
 
-Installing the prerequisites on an ubuntu system is fairly easy.
+First install the prerequisites for python-ssdeep and python-magic:
 
-First we must install the prerequisites for python-ssdeep::
-    # apt-get install cython ssdeep python-dev
+    apt install ssdeep python3-dev libmagic1 libfuzzy-dev libfuzzy2
 
 ## Installation
+atklite is available on PyPI. Install with [pip](https://pip.pypa.io/):
 
-Installation with pip is simple::
+    python3 -m pip install atklite
 
-  $ pip install atklite
+If you just want to run the installed command line utility (`atk-info`), try
+out [pipx](https://pypa.github.io/pipx/):
 
-If installing from source, unpack the distribution tarball and then install as
-follows::
-
-```shell
-$ python setup.py build
-$ python setup.py install
-```
+    pipx install atklite
 
 ### Configuration and use
+Usage (CLI):
 
-Usage::
+    atk-info ~/glyphicons-halflings-white.png
 
-```txt
-# From the cli using atk-info:
-jpleger@jupiter:~$ atk-info ~/glyphicons-halflings-white.png
-[-] Using binary store at: /home/jpleger/binary_store
-```
