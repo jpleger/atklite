@@ -88,7 +88,7 @@ class FileAnalysis:
 
         buf = bytes(data)[: (buf_size + 1)]
         val_hex = buf.hex(" ", -2)
-        val_ascii = re.sub("[^\x20-\x7e]", ".", buf.decode("utf-8"))
+        val_ascii = re.sub("[^\x20-\x7e]", ".", buf.decode("ISO-8859-1"))
         return "  ".join([val_hex, val_ascii])
 
     def read_first_file_bytes(self, filename, buf_size=BYTE_READ_COUNT):
