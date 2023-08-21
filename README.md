@@ -9,8 +9,9 @@ the following information can be determined by calling applications:
 - CRC32 checksum
 - File size
 - File type (from magic bytes)
-- Fuzzy hash (CTPH) via ssdeep
+- Fuzzy hash (CTPH) via [ssdeep](https://ssdeep-project.github.io/ssdeep/)
 - First byte values of file
+- Cymru Malware Hash Registry ([MHR](https://www.team-cymru.com/mhr)) status
 
 atklite is primarily intended for use in analyzing malware samples but may be
 useful for anyone looking for a simple API or command line tool for triaging
@@ -30,6 +31,7 @@ hash that a user chooses to use (MD5, SHA-1, SHA-256 or SHA-512).
 The following modules are installed automatically:
 - [python-magic](https://pypi.python.org/pypi/python-magic/)
 - [ssdeep](https://pypi.org/project/ssdeep/)
+- [dnspython](dnspython.org/)
 
 ### Installing prerequisites
 Installing the prerequisites on an Debian/Ubuntu system is simple.
@@ -95,3 +97,27 @@ Python API (processing data input):
     "first_bytes": "7f45 4c46 0201 0100 0000 0000 0000 0000 03  .ELF............."
 }
 ```
+
+A file known to MHR:
+
+```
+$ atk-info -n 7ee6095ba8c4ed9fe11fbf5e703823e1aeae7f5443027738f55979b27ca57171.dll 
+using binary store at: /home/jdoe/binary_store
+-- 7ee6095ba8c4ed9fe11fbf5e703823e1aeae7f5443027738f55979b27ca57171.dll --------
+  Analysis time: 2023-08-21 02:03:14.620973
+  File name:     7ee6095ba8c4ed9fe11fbf5e703823e1aeae7f5443027738f55979b27ca57171.dll
+  File size:     135168
+  File type:     PE32 executable (DLL) (GUI) Intel 80386, for MS Windows
+  CRC-32:        013a7794
+  MD5 hash:      81e56fd3b67ce33ef7150003985be7f4
+  SHA1 hash:     6c739fcc6dea8cc65617ff184f1febcd5404143a
+  SHA256 hash:   7ee6095ba8c4ed9fe11fbf5e703823e1aeae7f5443027738f55979b27ca57171
+  Fuzzy hash:    3072:4ELogSZScYg+E/wmqpFQQT7J/AzMVWWRTBfItV74VZ:LofScb/wmqp+QPJ4zMVWWRTBgkj
+  First bytes:   4d5a 9000 0300 0000 0400 0000 ffff 0000  MZ..............
+  Cymru MHR:     2023-08-20T00:40:33 11 engines (37%)
+```
+
+The MHR lookup is performed as a TXT record, allowing us to capture the results
+timestamp and number of engines detecting the file as malicious. atklite
+estimates a percentage of supported engines (in the above sample, 11/30,
+resulting in a 37% detection rate).
