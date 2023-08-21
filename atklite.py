@@ -8,14 +8,15 @@ import shutil
 import time
 from argparse import ArgumentParser
 from datetime import datetime
+from importlib.metadata import version
 from tempfile import gettempdir
 
+import dns.resolver
 import magic
-import pkg_resources
 import ssdeep
 
 __application_name__ = __name__
-__version__ = pkg_resources.get_distribution(__application_name__).version
+__version__ = version(__application_name__)
 __full_version__ = f"{__application_name__} {__version__}"
 
 
@@ -26,6 +27,9 @@ BYTE_READ_COUNT = 16
 
 SUPPORTED_HASH_LIBS = ("md5", "sha1", "sha256", "sha512")
 FILE_STORE_DIR = "~/sample_store"
+# Approximated number of Cymru MHR scan engines
+# https://www.team-cymru.com/mhr
+NUM_MHR_ENGINES = 30
 
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -53,7 +57,8 @@ class FileAnalysis:
     __ssd.hash_file = __ssd.hash_from_file
     __ms = magic.Magic()
 
-    def __init__(self, data=None, filename=None):
+    def __init__(self, data=None, filename=None, disable_mhr=False):
+        self.disable_mhr = disable_mhr
         if filename:
             self.analyze_file(filename)
         if data:
@@ -108,6 +113,8 @@ class FileAnalysis:
         self.results["ssdeep"] = self.__ssd.hash_bytes(data)
         self.results["crc32"] = "%08x" % (binascii.crc32(data) & 0xFFFFFFFF)
         self.results["first_bytes"] = self.read_first_data_bytes(data)
+        if not self.disable_mhr:
+            self.results["mhr_result"] = query_mhr_service(self.results["md5"])
 
     def analyze_file(self, filename):
         if not os.path.isfile(filename):
@@ -118,6 +125,8 @@ class FileAnalysis:
         self.results["ftype"] = self.__ms.from_file(filename)
         self.results["ssdeep"] = self.__ssd.hash_file(filename)
         self.results["first_bytes"] = self.read_first_file_bytes(filename)
+        if not self.disable_mhr:
+            self.results["mhr_result"] = query_mhr_service(self.results["md5"])
 
     def return_analysis(self):
         return self.results
@@ -251,6 +260,38 @@ def read_chunks(f, chunk_size=FILE_CHUNK_SIZE):
         yield data
 
 
+def query_mhr_service(hash_value):
+    """
+    Query Team Cymru's MHR service using DNS TXT record lookup.
+
+    Args:
+        hash_value (str): The hash value (MD5, SHA-1, or SHA-256) to check.
+
+    Returns:
+        str: The response from the MHR service indicating if the hash is
+        known or not.
+    """
+    mhr_domain = f"{hash_value}.hash.cymru.com"
+
+    try:
+        resolver = dns.resolver.Resolver()
+        txt_response = resolver.resolve(mhr_domain, dns.rdatatype.TXT)
+
+        if txt_response:
+            response_text = txt_response[0].strings[0].decode("utf-8")
+            ts, score = response_text.split()
+            tsiso = datetime.fromtimestamp(int(ts)).isoformat()
+            detection_percentage = int(score) / NUM_MHR_ENGINES
+            return f"{tsiso} {score} engines ({detection_percentage:.0%})"
+        else:
+            return "Unknown"
+
+    except dns.resolver.NXDOMAIN:
+        return "Unknown"
+    except Exception as e:
+        return f"Error: {e}"
+
+
 def cli():
     "Main CLI entry point"
 
@@ -276,9 +317,12 @@ def cli():
         "-n", "--no-store", action="store_true", help="do not store file"
     )
     parser.add_argument(
+        "-H", "--no-mhr", action="store_true", help="do not query Cymru MHR"
+    )
+    parser.add_argument(
         "-V",
         "--version",
-        version=__full_version__,
+        version=__version__,
         action="version",
         help="show program version",
     )
@@ -295,7 +339,9 @@ def cli():
 
     for f in args.file:
         try:
-            fa = FileAnalysis(filename=f).return_analysis()
+            fa = FileAnalysis(
+                filename=f, disable_mhr=args.no_mhr
+            ).return_analysis()
             fa["file_name"] = os.path.basename(f)
             if not args.no_store:
                 if args.move_file:
@@ -322,6 +368,8 @@ def cli():
 
             if "file_path" in fa:
                 print(f"  Stored file:   {fa['file_path']}")
+            if "mhr_result" in fa:
+                print(f"  Cymru MHR:     {fa['mhr_result']}")
         except IOError as e:
             parser.error("[ERROR] %s" % e)
 
