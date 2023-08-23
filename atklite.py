@@ -55,7 +55,6 @@ class FileAnalysis:
     __ssd = ssdeep
     __ssd.hash_bytes = __ssd.hash
     __ssd.hash_file = __ssd.hash_from_file
-    __ms = magic.Magic()
 
     def __init__(self, data=None, filename=None, disable_mhr=False):
         self.disable_mhr = disable_mhr
@@ -109,7 +108,8 @@ class FileAnalysis:
             return False
         self.hash_data(data)
         self.results["size"] = len(data)
-        self.results["ftype"] = self.__ms.from_buffer(data)
+        self.results["ftype"] = magic.from_buffer(data)
+        self.results["mime_type"] = magic.from_buffer(data, mime=True)
         self.results["ssdeep"] = self.__ssd.hash_bytes(data)
         self.results["crc32"] = "%08x" % (binascii.crc32(data) & 0xFFFFFFFF)
         self.results["first_bytes"] = self.read_first_data_bytes(data)
@@ -122,7 +122,8 @@ class FileAnalysis:
         # Size and CRC-32 computation done inside the hash function so we
         # don't have to read multiple times.
         self.hash_file(filename)
-        self.results["ftype"] = self.__ms.from_file(filename)
+        self.results["ftype"] = magic.from_file(filename)
+        self.results["mime_type"] = magic.from_file(filename, mime=True)
         self.results["ssdeep"] = self.__ssd.hash_file(filename)
         self.results["first_bytes"] = self.read_first_file_bytes(filename)
         if not self.disable_mhr:
@@ -358,6 +359,7 @@ def cli():
   File name:     {fa['file_name']}
   File size:     {fa['size']}
   File type:     {fa['ftype']}
+  MIME type:     {fa['mime_type']}
   CRC-32:        {fa['crc32']}
   MD5 hash:      {fa['md5']}
   SHA1 hash:     {fa['sha1']}

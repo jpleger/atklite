@@ -8,7 +8,7 @@ the following information can be determined by calling applications:
 - SHA-256 hash
 - CRC32 checksum
 - File size
-- File type (from magic bytes)
+- File type and MIME type detection
 - Fuzzy hash (CTPH) via [ssdeep](https://ssdeep-project.github.io/ssdeep/)
 - First byte values of file
 - Cymru Malware Hash Registry ([MHR](https://www.team-cymru.com/mhr)) status
@@ -57,10 +57,11 @@ Usage (CLI):
 $ atk-info /usr/bin/dash
 using binary store at: /home/jdoe/binary_store
 -- dash ------------------------------------------------------------------------
-  Analysis time: 2023-03-17 05:59:17.375644
+  Analysis time: 2023-08-23 07:28:05.016638
   File name:     dash
   File size:     125688
   File type:     ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=f7ab02fc1b8ff61b41647c1e16ec9d95ba5de9f0, for GNU/Linux 3.2.0, stripped
+  MIME type:     application/x-pie-executable
   CRC-32:        dea50977
   MD5 hash:      7409ae3f7b10e059ee70d9079c94b097
   SHA1 hash:     42e94914c7800c7063c51d7a17aec3a2069a3769
@@ -68,6 +69,7 @@ using binary store at: /home/jdoe/binary_store
   Fuzzy hash:    3072:BW795HHUunYzyVSlYV+tqOsDRC1wAtXqW6mfDrEDImbr:BWjHHZ2dtq3RFGqWzbrED7br
   First bytes:   7f45 4c46 0201 0100 0000 0000 0000 0000  .ELF............
   Stored file:   /home/jdoe/binary_store/7/4/0/7409ae3f7b10e059ee70d9079c94b097
+  Cymru MHR:     Unknown
 ```
 
 Python API (processing data input):
@@ -84,17 +86,19 @@ Python API (processing data input):
 
 ```json
 {
-    "time": 1679031740.0616658,
-    "isotime": "2023-03-17 05:42:20.061673",
+    "time": 1692775973.2529104,
+    "isotime": "2023-08-23 07:32:53.252912",
     "md5": "2b17c2d5693b2257c7a1e09f00e5e2aa",
     "sha1": "ff1070796c5d75a284415a6269a42c89b0b385ac",
     "sha256": "13feaf307e36054cf7537965d8343714112a25674a13bc5f591ecb1fb61de65b",
     "sha512": "e658d0487a72e91f2b00099ad2eebecd2c5c7f5963f1adf861b76dc088b569199f43c866dbb1de7af2ad58b312e205c2e3ef3891e51229508059e034176284ab",
     "size": 100,
     "ftype": "ELF 64-bit LSB shared object, x86-64, version 1 (SYSV)",
+    "mime_type": "application/x-sharedlib",
     "ssdeep": "3:Bnks//ZlllVrX/1llp/leulZpXltllvllvll/n:BnX//ZtBP/leulZ5",
     "crc32": "0c29b48e",
-    "first_bytes": "7f45 4c46 0201 0100 0000 0000 0000 0000 03  .ELF............."
+    "first_bytes": "7f45 4c46 0201 0100 0000 0000 0000 0000 03  .ELF.............",
+    "mhr_result": "Unknown"
 }
 ```
 
@@ -108,6 +112,7 @@ using binary store at: /home/jdoe/binary_store
   File name:     7ee6095ba8c4ed9fe11fbf5e703823e1aeae7f5443027738f55979b27ca57171.dll
   File size:     135168
   File type:     PE32 executable (DLL) (GUI) Intel 80386, for MS Windows
+  MIME type:     application/x-dosexec
   CRC-32:        013a7794
   MD5 hash:      81e56fd3b67ce33ef7150003985be7f4
   SHA1 hash:     6c739fcc6dea8cc65617ff184f1febcd5404143a
